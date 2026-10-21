@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Levelbuch – Habit Tracker ohne Druck</title>
+<meta name="description" content="Levelbuch ist ein ruhiger Habit Tracker für iPhone und Apple Watch. Kein Konto, keine Werbung, alle Daten bleiben auf deinem Gerät.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%231A3328' stroke='%23D8B874' stroke-width='3'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-weight='600' text-anchor='middle' fill='%23F1D79C'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+  /* Eine ruhige Lesespalte wie eine Buchseite. Keine externen Schriften, keine Cookies, keine Analyse. */
+  :root {
+    --bg: #F3F1EA; --paper: #FBFAF6; --ink: #1D2A24; --muted: #5F6B63; --line: #D9D5C8;
+    --green: #1F4A3A; --green-soft: #E2EBE5; --brass: #8A6A2E;
+    --gold: #F1D79C; --gold-edge: #D8B874; --medal-dark: #1A3328; --medal-light: #3A5A4B;
+    --on-green: #FBFAF6;
+    --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101714; --paper: #16201C; --ink: #E9E6DC; --muted: #9AA59E; --line: #2A3731;
+      --green: #6FB394; --green-soft: #1D2D26; --brass: #CFAE6A; --on-green: #101714; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101714; --paper: #16201C; --ink: #E9E6DC; --muted: #9AA59E; --line: #2A3731;
+    --green: #6FB394; --green-soft: #1D2D26; --brass: #CFAE6A; --on-green: #101714; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 1rem; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--body); font-size: 1.0625rem; line-height: 1.6;
+    padding: env(safe-area-inset-top, 0) max(16px, env(safe-area-inset-right, 0)) env(safe-area-inset-bottom, 0) max(16px, env(safe-area-inset-left, 0));
+  }
+  .page { max-width: 40rem; margin: 0 auto; padding-block: 2.5rem 3rem; display: flex; flex-direction: column; gap: 2.75rem; }
+  header { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem; }
+  .medal {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--medal-light), var(--medal-dark) 70%);
+    box-shadow: inset 0 0 0 2px var(--gold-edge), inset 0 0 0 7px var(--medal-dark), inset 0 0 0 8px rgba(216,184,116,.45);
+    display: grid; place-items: center;
+    font-family: var(--display); font-weight: 600; font-size: 46px; color: var(--gold); line-height: 1;
+  }
+  h1 { font-family: var(--display); font-weight: 600; font-size: 2.6rem; line-height: 1.1; margin: 0; }
+  .tagline { margin: 0; color: var(--muted); max-width: 30rem; text-wrap: balance; }
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--paper); }
+  .lang button {
+    font: 600 0.8125rem/1 var(--body); letter-spacing: 0.06em; text-transform: uppercase;
+    border: 0; background: transparent; color: var(--muted); padding: 0.55rem 0.95rem; border-radius: 999px; cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] { background: var(--green); color: var(--on-green); }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+  .lang-block { display: flex; flex-direction: column; gap: 2.75rem; }
+  .lang-block[hidden] { display: none; }
+  section { display: flex; flex-direction: column; gap: 1rem; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 1.75rem; margin: 0; padding-bottom: 0.4rem; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 1.0625rem; margin: 0; }
+  p { margin: 0; }
+  .eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); }
+  .features { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  .features li { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 0.85rem 1rem; }
+  .features strong { display: block; }
+  .features span { color: var(--muted); font-size: 0.975rem; }
+  .cta { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  .button {
+    display: inline-block; text-decoration: none; font-weight: 600;
+    background: var(--green); color: var(--on-green); padding: 0.8rem 1.2rem; border-radius: 12px;
+  }
+  .nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
+  .contact {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 1rem 1.1rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem;
+  }
+  .contact a { font-weight: 600; font-size: 1.125rem; overflow-wrap: anywhere; min-width: 0; flex: 1 1 14rem; }
+  .copy {
+    font: 600 0.875rem/1 var(--body); border: 1px solid var(--line); background: var(--green-soft); color: var(--ink);
+    padding: 0.6rem 0.9rem; border-radius: 10px; cursor: pointer;
+  }
+  .faq, .policy { display: flex; flex-direction: column; gap: 1.1rem; }
+  .faq div, .policy div { display: flex; flex-direction: column; gap: 0.3rem; }
+  .policy ul { margin: 0.25rem 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .muted { color: var(--muted); font-size: 0.9375rem; }
+  a { color: var(--green); text-underline-offset: 3px; }
+  footer { color: var(--muted); font-size: 0.875rem; text-align: center; border-top: 1px solid var(--line); padding-top: 1.25rem; display: flex; flex-direction: column; gap: 0.25rem; }
+  @media (prefers-reduced-motion: no-preference) { .lang button { transition: background .15s, color .15s; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="medal" aria-hidden="true">L</div>
+    <h1>Levelbuch</h1>
+    <p class="tagline" data-de="Du bist schon gut genug. Levelbuch sammelt die kleinen Dinge, die du tust, um gesund zu wachsen." data-en="You are already enough. Levelbuch collects the small things you do to grow in a healthy way.">Du bist schon gut genug. Levelbuch sammelt die kleinen Dinge, die du tust, um gesund zu wachsen.</p>
+    <div class="lang" role="group" aria-label="Sprache / Language">
+      <button type="button" id="btn-de" aria-pressed="true">Deutsch</button>
+      <button type="button" id="btn-en" aria-pressed="false">English</button>
+    </div>
+  </header>
+
+  <!-- DEUTSCH -->
+  <div id="de" class="lang-block" lang="de">
+    <section id="app">
+      <h2>Die App</h2>
+      <p>Levelbuch ist ein ruhiger Habit Tracker für iPhone und Apple Watch. Du hakst ab, was du für dich tust, sammelst XP und wächst Level für Level, vom Samen bis zum Wald. Ohne Druck und ohne schlechtes Gewissen, wenn ein Tag mal anders läuft.</p>
+      <ul class="features">
+        <li><strong>Gewohnheiten und Routinen</strong><span>Für den Morgen, den Abend und alles dazwischen.</span></li>
+        <li><strong>Apple Watch und Widgets</strong><span>Abhaken direkt am Handgelenk oder auf dem Home-Bildschirm.</span></li>
+        <li><strong>Deine Daten bleiben bei dir</strong><span>Kein Konto, keine Werbung, keine Analyse. Alles liegt nur auf deinem Gerät.</span></li>
+      </ul>
+      <div class="cta">
+        <a class="button" href="https://apps.apple.com/de/app/id6823210964">Im App Store ansehen</a>
+        <span class="muted">Kostenlos · iOS 17 oder neuer · watchOS 10 oder neuer</span>
+      </div>
+      <nav class="nav" aria-label="Seiteninhalt">
+        <a href="#support">Support</a>
+        <a href="#datenschutz">Datenschutzerklärung</a>
+      </nav>
+    </section>
+
+    <section id="support">
+      <h2>Support</h2>
+      <p>Fragen, Fehler oder Ideen? Schreib mir eine E-Mail. Ich lese jede Nachricht selbst und antworte so bald wie möglich.</p>
+      <div class="contact">
+        <a href="mailto:levelbuch.app@icloud.com">levelbuch.app@icloud.com</a>
+        <button type="button" class="copy" data-copy="levelbuch.app@icloud.com" data-label="Adresse kopieren" data-done="Kopiert">Adresse kopieren</button>
+      </div>
+      <div class="faq">
+        <div>
+          <h3>Wie füge ich Gewohnheiten hinzu oder ändere sie?</h3>
+          <p>Zahnrad oben rechts → „Gewohnheiten bearbeiten“. Dort fügst du Vorschläge oder eigene Gewohnheiten hinzu, änderst Name, Symbol und XP oder entfernst eine Gewohnheit per Wischen. Entfernte Gewohnheiten behalten ihre XP.</p>
+        </div>
+        <div>
+          <h3>Ich habe gestern vergessen abzuhaken.</h3>
+          <p>Oben auf „Gestern“ umschalten und nachtragen.</p>
+        </div>
+        <div>
+          <h3>Die Erinnerung kommt nicht.</h3>
+          <p>Prüfe in der App unter Einstellungen → „Abends erinnern“ und in den iPhone-Einstellungen → Mitteilungen → Levelbuch, ob Mitteilungen erlaubt sind. Ein aktiver Fokus kann sie ebenfalls zurückhalten.</p>
+        </div>
+        <div>
+          <h3>Wo sind meine Daten, und wie lösche ich sie?</h3>
+          <p>Alle Daten liegen nur auf deinem Gerät und sind in deinem normalen Geräte-Backup enthalten. Wenn du die App löschst, sind auch die Daten gelöscht. Unter Einstellungen → „Deine Daten“ kannst du jederzeit eine Sicherung exportieren und wieder einspielen.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="datenschutz">
+      <h2>Datenschutzerklärung</h2>
+      <div class="policy">
+        <p><strong>Kurz gesagt:</strong> Levelbuch erhebt keine personenbezogenen Daten. Es gibt kein Konto, keinen eigenen Server, keine Werbung und keine Analyse-Werkzeuge.</p>
+        <div>
+          <p class="eyebrow">Verantwortlich</p>
+          <p>Marko Kühne · E-Mail: levelbuch.app@icloud.com</p>
+        </div>
+        <div>
+          <p class="eyebrow">Daten in der App</p>
+          <p>Deine Gewohnheiten, Routinen, Haken, XP und Einstellungen werden ausschließlich lokal auf deinem Gerät gespeichert. Sie werden nicht an mich oder Dritte übertragen. Erinnerungen, am Abend oder zu einzelnen Gewohnheiten, sind lokale Mitteilungen, die dein Gerät selbst plant. Dafür werden keine Daten versendet.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Apple Watch und Widgets</p>
+          <p>Damit die Apple Watch, ihre Komplikation und die Widgets deinen aktuellen Stand zeigen, gibt Levelbuch deine Gewohnheiten und Haken direkt zwischen deinem iPhone, deiner gekoppelten Apple Watch und den Widgets auf deinem Gerät weiter. Das läuft über Apples Funktionen für die Verbindung zwischen eigenen Geräten, nicht über einen Server von mir.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Optionale Verbindung mit Apple Health (ab Version 1.1)</p>
+          <p>Levelbuch liest Daten aus Apple Health nur, wenn du die Verbindung in der App einschaltest und den Zugriff erlaubst. Je nachdem, was du freigibst, sind das:</p>
+          <ul>
+            <li>Schritte, Trainings und Achtsamkeitsminuten, um eine damit verknüpfte Gewohnheit automatisch abzuhaken;</li>
+            <li>Schritte, Schlafdauer und Bewegungsminuten für die Karte „Gesundheit heute“, die zeigt, ob du deine Tagesziele erreicht hast.</li>
+          </ul>
+          <p>Die Werte werden nur auf deinem Gerät ausgewertet. Levelbuch schreibt nichts in Health, speichert keine Health-Daten außerhalb deines Geräts und gibt sie nicht weiter, weder an mich noch für Werbung oder an Dritte. Die Karte kannst du in den Einstellungen der App unter „Apple Health“ ausschalten. Den Zugriff widerrufst du jederzeit in den iPhone-Einstellungen unter Datenschutz &amp; Sicherheit → Health → Levelbuch.</p>
+        </div>
+        <div>
+          <p class="eyebrow">App Store und Apple</p>
+          <p>Levelbuch wird über Apples App Store vertrieben. Für Download, Updates und gegebenenfalls Absturzberichte gelten die Datenschutzbestimmungen von Apple. Absturz- und Nutzungsstatistiken erhalte ich nur, wenn du in den Geräte-Einstellungen zugestimmt hast, Analysedaten mit App-Entwicklern zu teilen. Apple stellt sie mir dann ohne Bezug zu deiner Person bereit.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Kontakt per E-Mail</p>
+          <p>Wenn du mir schreibst, verwende ich deine E-Mail-Adresse und deine Nachricht nur, um dir zu antworten (Art. 6 Abs. 1 lit. f DSGVO). Ich lösche die Korrespondenz, wenn sie erledigt ist und keine Aufbewahrungspflicht besteht. Über „Feedback senden“ in der App öffnet sich dein Mail-Programm mit einer vorbereiteten Nachricht. Sie enthält nur die App-Version und die iOS-Version, und du siehst sie, bevor du sie abschickst.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Diese Webseite</p>
+          <p>Diese Seite wird über GitHub Pages (GitHub, Inc., USA) bereitgestellt. Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie deine IP-Adresse, um die Seite auszuliefern und vor Missbrauch zu schützen (Art. 6 Abs. 1 lit. f DSGVO). Näheres steht in der Datenschutzerklärung von GitHub. Ich selbst setze keine Cookies, lade keine externen Schriften und nutze keine Analyse.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Deine Rechte</p>
+          <ul>
+            <li>Auskunft, Berichtigung und Löschung deiner Daten</li>
+            <li>Einschränkung der Verarbeitung und Widerspruch</li>
+            <li>Beschwerde bei einer Datenschutz-Aufsichtsbehörde</li>
+          </ul>
+        </div>
+        <p class="muted">Stand: 21. Oktober 2026</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ENGLISH -->
+  <div id="en" class="lang-block" lang="en" hidden>
+    <section id="app-en">
+      <h2>The app</h2>
+      <p>Levelbuch is a calm habit tracker for iPhone and Apple Watch. You check off what you do for yourself, collect XP and grow level by level, from seed to forest. No pressure, and no guilt when a day goes differently.</p>
+      <ul class="features">
+        <li><strong>Habits and routines</strong><span>For the morning, the evening and everything in between.</span></li>
+        <li><strong>Apple Watch and widgets</strong><span>Check things off on your wrist or right on your Home Screen.</span></li>
+        <li><strong>Your data stays with you</strong><span>No account, no ads, no analytics. Everything stays on your device.</span></li>
+      </ul>
+      <div class="cta">
+        <a class="button" href="https://apps.apple.com/app/id6823210964">View on the App Store</a>
+        <span class="muted">Free · iOS 17 or later · watchOS 10 or later</span>
+      </div>
+      <nav class="nav" aria-label="On this page">
+        <a href="#support-en">Support</a>
+        <a href="#privacy">Privacy Policy</a>
+      </nav>
+    </section>
+
+    <section id="support-en">
+      <h2>Support</h2>
+      <p>Questions, bugs or ideas? Send me an email. I read every message myself and reply as soon as I can.</p>
+      <div class="contact">
+        <a href="mailto:levelbuch.app@icloud.com">levelbuch.app@icloud.com</a>
+        <button type="button" class="copy" data-copy="levelbuch.app@icloud.com" data-label="Copy address" data-done="Copied">Copy address</button>
+      </div>
+      <div class="faq">
+        <div>
+          <h3>How do I add or change habits?</h3>
+          <p>Gear icon at the top right → “Edit habits”. Add suggestions or your own habits, change name, symbol and XP, or swipe to remove a habit. Removed habits keep their XP.</p>
+        </div>
+        <div>
+          <h3>I forgot to check something off yesterday.</h3>
+          <p>Switch to “Yesterday” at the top and add it.</p>
+        </div>
+        <div>
+          <h3>The reminder doesn’t show up.</h3>
+          <p>Check Settings → “Remind me in the evening” in the app, and iPhone Settings → Notifications → Levelbuch. An active Focus can also hold notifications back.</p>
+        </div>
+        <div>
+          <h3>Where is my data, and how do I delete it?</h3>
+          <p>All data stays on your device and is included in your regular device backup. Deleting the app deletes the data too. Under Settings → “Your data” you can export a backup at any time and restore it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="privacy">
+      <h2>Privacy Policy</h2>
+      <div class="policy">
+        <p><strong>In short:</strong> Levelbuch collects no personal data. There is no account, no server of its own, no advertising and no analytics.</p>
+        <div>
+          <p class="eyebrow">Controller</p>
+          <p>Marko Kühne · Email: levelbuch.app@icloud.com</p>
+        </div>
+        <div>
+          <p class="eyebrow">Data in the app</p>
+          <p>Your habits, routines, checks, XP and settings are stored only on your device. They are never sent to me or to third parties. Reminders, in the evening or for individual habits, are local notifications scheduled by your device. No data is transmitted for them.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Apple Watch and widgets</p>
+          <p>So that Apple Watch, its complication and the widgets show your current progress, Levelbuch passes your habits and checks directly between your iPhone, your paired Apple Watch and the widgets on your device. This uses Apple’s features for connecting your own devices, not a server of mine.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Optional Apple Health connection (from version 1.1)</p>
+          <p>Levelbuch reads data from Apple Health only if you turn the connection on in the app and allow access. Depending on what you allow, this is:</p>
+          <ul>
+            <li>steps, workouts and mindful minutes, to check off a habit linked to them automatically;</li>
+            <li>steps, sleep duration and exercise minutes for the “Health today” card, which shows whether you reached your daily goals.</li>
+          </ul>
+          <p>The values are only evaluated on your device. Levelbuch writes nothing to Health, keeps no Health data outside your device and never shares it, not with me, not for advertising and not with third parties. You can turn the card off in the app’s settings under “Apple Health”. You can revoke access at any time in iPhone Settings under Privacy &amp; Security → Health → Levelbuch.</p>
+        </div>
+        <div>
+          <p class="eyebrow">App Store and Apple</p>
+          <p>Levelbuch is distributed through Apple’s App Store. Apple’s privacy policy applies to downloads, updates and crash reports. I only receive crash and usage statistics if you agreed in your device settings to share analytics with app developers. Apple then provides them to me without identifying you.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Contact by email</p>
+          <p>If you write to me, I use your email address and message only to reply (Art. 6(1)(f) GDPR). I delete the correspondence once it is settled and no retention duty applies. “Send feedback” in the app opens your mail app with a prepared message. It contains only the app version and the iOS version, and you see it before you send it.</p>
+        </div>
+        <div>
+          <p class="eyebrow">This website</p>
+          <p>This page is hosted on GitHub Pages (GitHub, Inc., USA). When you open it, GitHub processes technically necessary data such as your IP address to deliver the page and protect it from abuse (Art. 6(1)(f) GDPR). See GitHub’s privacy statement for details. I do not set cookies, load external fonts or use analytics.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Your rights</p>
+          <ul>
+            <li>Access, rectification and erasure of your data</li>
+            <li>Restriction of processing and objection</li>
+            <li>Complaint to a data protection supervisory authority</li>
+          </ul>
+        </div>
+        <p class="muted">Last updated: October 21, 2026</p>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <span data-de="Levelbuch ist kein Ersatz für ärztlichen Rat." data-en="Levelbuch is not a substitute for medical advice.">Levelbuch ist kein Ersatz für ärztlichen Rat.</span>
+    <span>© 2026 Marko Kühne · Hamburg</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var de = document.getElementById('de'), en = document.getElementById('en');
+  var bde = document.getElementById('btn-de'), ben = document.getElementById('btn-en');
+  var swaps = document.querySelectorAll('[data-de][data-en]');
+  function show(lang) {
+    var isEn = lang === 'en';
+    de.hidden = isEn; en.hidden = !isEn;
+    bde.setAttribute('aria-pressed', String(!isEn));
+    ben.setAttribute('aria-pressed', String(isEn));
+    swaps.forEach(function (el) { el.textContent = el.getAttribute(isEn ? 'data-en' : 'data-de'); });
+    document.documentElement.lang = isEn ? 'en' : 'de';
+  }
+  bde.addEventListener('click', function () { show('de'); });
+  ben.addEventListener('click', function () { show('en'); });
+  var enIds = ['en', 'app-en', 'support-en', 'privacy'];
+  var deIds = ['de', 'app', 'support', 'datenschutz'];
+  var h = (location.hash || '').slice(1);
+  var nav = (navigator.language || 'de').toLowerCase();
+  if (enIds.indexOf(h) >= 0) show('en');
+  else if (deIds.indexOf(h) >= 0) show('de');
+  else show(nav.indexOf('de') === 0 ? 'de' : 'en');
+  if (h) { var t = document.getElementById(h); if (t) t.scrollIntoView(); }
+
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.getAttribute('data-copy');
+      function done() {
+        btn.textContent = btn.getAttribute('data-done');
+        setTimeout(function () { btn.textContent = btn.getAttribute('data-label'); }, 1600);
+      }
+      try { navigator.clipboard.writeText(text).then(done, function () {}); } catch (e) {}
+    });
+  });
+})();
+</script>
+</body>
+</html>
